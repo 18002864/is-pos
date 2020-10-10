@@ -9,7 +9,25 @@ const pool = new Pool({
 })
 
 
+const getProducts = (request, response) => {
+  pool.query('select * from products', (error, results) => {
+    if (error) {
+      console.log('error', error)
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
 
+const getStores = (request, response) => {
+  pool.query('select * from stores', (error, results) => {
+    if (error) {
+      console.log('error', error)
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
 
 const getUsers = (request, response) => {
   pool.query('select * from users', (error, results) => {
@@ -72,6 +90,8 @@ const getUsers = (request, response) => {
 // }
 
 module.exports = {
+  getProducts,
+  getStores,
   getUsers,
   // getUserById,
   // createUser,
