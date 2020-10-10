@@ -7,7 +7,9 @@ create table invoices (
 	created_at DATE,
 	created_by VARCHAR ( 50 ),
 	updated_at DATE,
-	updated_by VARCHAR ( 50 ) 
+	updated_by VARCHAR ( 50 )
+	id_point_of_sale INT NOT NULL,
+	foreign key (id_point_of_sale) references point_of_sales(id_point_of_sale)
 );
 
 create table stores(
