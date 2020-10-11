@@ -1,12 +1,16 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
-const db = require('./wtf')
 const PORT = process.env.PORT || 3000;
 
 const products = require('./products/products')
 const stores = require('./stores/stores')
 const pointOfSales = require('./pointOfSales/pointOfSales')
+const invoices = require('./invoices/invoices')
+const sales = require('./sales/sales')
+const salesProducts = require('./salesProducts/salesProducts')
+const storeProducts = require('./storeProducts/storeProducts')
+const storeProductsDiscounts = require('./storeProductDiscounts/storeProductDiscounts')
 
 app.use(bodyParser.json())
 app.use(
@@ -18,7 +22,6 @@ app.use(
 app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' })
 })
-
 
 // productos
 app.get('/products', products.getProducts)
@@ -33,7 +36,7 @@ app.get('/stores/:id', stores.getStoreById)
 app.post('/stores', stores.createStore)
 app.delete('/stores/:id', stores.deleteStore)
 app.put('/stores/:id', stores.updateStore)
-
+  
 // point of sales
 app.get('/pointOfSales', pointOfSales.getPointOfSales)
 app.get('/pointOfSales/:id', pointOfSales.getPointOfSalesById)
@@ -41,7 +44,41 @@ app.post('/pointOfSales', pointOfSales.createPointOfSales)
 app.delete('/pointOfSales/:id', pointOfSales.deletePointOfSales)
 app.put('/pointOfSales/:id', pointOfSales.updatePointOfSales)
 
-app.get('/users', db.getUsers)
+// invoices
+app.get('/invoices', invoices.getInvoices)
+app.get('/invoices/:id', invoices.getInvoicesById)
+app.post('/invoices', invoices.createInvoices)
+app.delete('/invoices/:id', invoices.deleteInvoices)
+app.put('/invoices/:id', invoices.updateInvoices)
+
+// sales
+app.get('/sales', sales.getSales)
+app.get('/sales/:id', sales.getSalesById)
+app.post('/sales', sales.createSales)
+app.delete('/sales/:id', sales.deleteSale)
+app.put('/pointOfSasalesles/:id', sales.updateSales)
+
+// sales products
+app.get('/salesProducts', salesProducts.getSalesProducts)
+app.get('/salesProducts/:id', salesProducts.getSalesProductsById)
+app.post('/salesProducts', salesProducts.createSalesProducts)
+app.delete('/salesProducts/:id', salesProducts.deleteSalesProducts)
+app.put('/salesProducts/:id', salesProducts.updateSalesProducts)
+
+// store products
+app.get('/storeProducts', storeProducts.getStoreProducts)
+app.get('/storeProducts/:id', storeProducts.getStoreProductsById)
+app.post('/storeProducts', storeProducts.createStoreProducts)
+app.delete('/storeProducts/:id', storeProducts.deleteStoreProducts)
+app.put('/storeProducts/:id', storeProducts.updateStoreProducts)
+
+// store products discount
+app.get('/storeProductsDiscounts', storeProductsDiscounts.getStoreProductDiscounts)
+app.get('/storeProductsDiscounts/:id', storeProductsDiscounts.getStoreProductDiscountsById)
+app.post('/storeProductsDiscounts', storeProductsDiscounts.createStoreProductDiscounts)
+app.delete('/storeProductsDiscounts/:id', storeProductsDiscounts.deleteStoreProductDiscounts)
+app.put('/storeProductsDiscounts/:id', storeProductsDiscounts.updateStoreProductDiscounts)
+
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}.`)

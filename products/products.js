@@ -32,7 +32,7 @@ const createProduct = (request, response) => {
 	const { product_name, description, created_at, created_by,
 		updated_at, updated_by } = request.body
 	pool.query(`insert into products(product_name, description, created_at,created_by, updated_at, updated_by )
-		values($1,$2, null,null,null,null )`, 
+		values($1,$2, Now(),null,Now(),null )`, 
 		[product_name, description], (error, results) => {
 		if (error) {
 			throw error

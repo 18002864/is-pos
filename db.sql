@@ -1,14 +1,14 @@
 create table invoices (
 	id_invoice serial PRIMARY KEY,
-	invoide_pdf VARCHAR ( 50 ),
+	invoice_pdf VARCHAR ( 50 ),
 	invoice_sent BOOLEAN,
 	status VARCHAR ( 50 ),
 	email_sent VARCHAR ( 50 ),
+	id_point_of_sale INT NOT NULL,
 	created_at DATE,
 	created_by VARCHAR ( 50 ),
 	updated_at DATE,
 	updated_by VARCHAR ( 50 )
-	id_point_of_sale INT NOT NULL,
 	foreign key (id_point_of_sale) references point_of_sales(id_point_of_sale)
 );
 
@@ -64,7 +64,6 @@ create table sales(
 	foreign key (id_point_of_sale) references point_of_sales(id_point_of_sale),
 	foreign key (id_invoice) references invoices(id_invoice)
 );
-
 
 create table sales_products(
 	id_sale_product serial PRIMARY KEY,

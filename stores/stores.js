@@ -33,7 +33,7 @@ const createStore = (request, response) => {
 		updated_at, updated_by } = request.body
     pool.query(`insert into stores
         (slug, store_name,address, created_at,created_by, updated_at, updated_by )
-		values($1,$2,$3,null,null,null,null )`, 
+		values($1,$2,$3,Now(),null,Now(),null )`, 
 		[slug, store_name,address], (error, results) => {
 		if (error) {
 			throw error

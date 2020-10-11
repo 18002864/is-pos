@@ -8,10 +8,10 @@ const pool = new Pool({
 	port: 5432,
 })
 
-const table_name = 'point_of_sales'
-const id_from_table = 'id_point_of_sale'
+const table_name = 'invoices'
+const id_from_table = 'id_invoice'
 
-const getPointOfSales = (request, response) => {
+const getInvoices = (request, response) => {
 	pool.query(`select * from ${table_name}`, (error, results) => {
 		if (error) {
 			console.log('error', error)
@@ -21,7 +21,7 @@ const getPointOfSales = (request, response) => {
 	})
 }
 
-const getPointOfSalesById = (request, response) => {
+const getInvoicesById = (request, response) => {
 	const id = parseInt(request.params.id)
 	pool.query(`SELECT * FROM ${table_name} WHERE ${id_from_table} = $1`, [id], (error, results) => {
 		if (error) {
@@ -31,13 +31,14 @@ const getPointOfSalesById = (request, response) => {
 	})
 }
 
-const createPointOfSales = (request, response) => {
-	const { id_store, terminal_number, created_at, created_by,
-		updated_at, updated_by } = request.body
+const createInvoices = (request, response) => {
+    const { invoice_pdf, invoice_sent, status, email_sent, id_point_of_sale,
+        created_at, created_by, updated_at, updated_by } = request.body
     pool.query(`insert into ${table_name}
-        (id_store, terminal_number, created_at,created_by, updated_at, updated_by )
-		values($1,$2,Now(),null,Now(),null )`, 
-		[id_store, terminal_number], (error, results) => {
+        (invoice_pdf, invoice_sent, status, email_sent,id_point_of_sale,
+            created_at,created_by, updated_at, updated_by )
+		    values($1,$2,null,null,null,null )`, 
+		[invoice_pdf, invoice_sent, status, email_sent, id_point_of_sale], (error, results) => {
 		if (error) {
 			throw error
 		}
@@ -45,13 +46,19 @@ const createPointOfSales = (request, response) => {
 	})
 }
 
-const updatePointOfSales = (request, response) => {
+const updateInvoices = (request, response) => {
   const id = parseInt(request.params.id)
-  const { id_store, terminal_number, created_at, created_by,
-    updated_at, updated_by } = request.body
+  const { invoice_pdf, invoice_sent, status, email_sent, id_point_of_sale,
+    created_at, created_by, updated_at, updated_by } = request.body
   pool.query(
-    `UPDATE ${table_name} SET id_store = $1, terminal_number = $2 WHERE ${id_from_table} = $3`,
-    [id_store, terminal_number, id],
+    `UPDATE ${table_name} 
+        SET invoice_pdf = $1, 
+            invoice_sent = $2,
+            status = $3,
+            email_sent = $4,
+            id_point_of_sale = $5
+            WHERE ${id_from_table} = $6`,
+    [invoice_pdf, invoice_sent, status, email_sent, id_point_of_sale, id],
     (error, results) => {
       if (error) {
         throw error
@@ -61,7 +68,7 @@ const updatePointOfSales = (request, response) => {
   )
 }
 
-const deletePointOfSales = (request, response) => {
+const deleteInvoices = (request, response) => {
   const id = parseInt(request.params.id)
   pool.query(`DELETE FROM ${table_name} WHERE ${id_from_table} = $1`, [id], (error, results) => {
     if (error) {
@@ -72,9 +79,9 @@ const deletePointOfSales = (request, response) => {
 }
 
 module.exports = {
-	getPointOfSales,
-	getPointOfSalesById,
-	createPointOfSales,
-	updatePointOfSales,
-	deletePointOfSales
+	getInvoices,
+	getInvoicesById,
+	createInvoices,
+	updateInvoices,
+	deleteInvoices
 }
