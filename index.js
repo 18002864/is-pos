@@ -10,7 +10,9 @@ const invoices = require('./invoices/invoices')
 const sales = require('./sales/sales')
 const salesProducts = require('./salesProducts/salesProducts')
 const storeProducts = require('./storeProducts/storeProducts')
+const productDiscounts = require('./productDiscounts/productDiscounts')
 const storeProductsDiscounts = require('./storeProductDiscounts/storeProductDiscounts')
+const productDiscountsCoupons = require('./productDiscountCoupons/productDiscountCoupons')
 
 app.use(bodyParser.json())
 app.use(
@@ -72,6 +74,13 @@ app.post('/storeProducts', storeProducts.createStoreProducts)
 app.delete('/storeProducts/:id', storeProducts.deleteStoreProducts)
 app.put('/storeProducts/:id', storeProducts.updateStoreProducts)
 
+// product discounts
+app.get('/productDiscounts', productDiscounts.getProductDiscounts)
+app.get('/productDiscounts/:id', productDiscounts.getProductDiscountsById)
+app.post('/productDiscounts', productDiscounts.createProductDiscounts)
+app.delete('/productDiscounts/:id', productDiscounts.deleteProductDiscounts)
+app.put('/productDiscounts/:id', productDiscounts.updateProductDiscounts)
+
 // store products discount
 app.get('/storeProductsDiscounts', storeProductsDiscounts.getStoreProductDiscounts)
 app.get('/storeProductsDiscounts/:id', storeProductsDiscounts.getStoreProductDiscountsById)
@@ -79,6 +88,12 @@ app.post('/storeProductsDiscounts', storeProductsDiscounts.createStoreProductDis
 app.delete('/storeProductsDiscounts/:id', storeProductsDiscounts.deleteStoreProductDiscounts)
 app.put('/storeProductsDiscounts/:id', storeProductsDiscounts.updateStoreProductDiscounts)
 
+// product Discounts Coupons
+app.get('/productDiscountsCoupons', productDiscountsCoupons.getProductDiscountCoupons)
+app.get('/productDiscountsCoupons/:id', productDiscountsCoupons.getProductDiscountCouponsById)
+app.post('/productDiscountsCoupons', productDiscountsCoupons.createProductDiscountCoupons)
+app.delete('/productDiscountsCoupons/:id', productDiscountsCoupons.deleteProductDiscountCoupons)
+app.put('/productDiscountsCoupons/:id', productDiscountsCoupons.updateProductDiscountCoupons)
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}.`)
