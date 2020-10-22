@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 const app = express()
 const PORT = process.env.PORT || 3000;
 
@@ -14,6 +15,7 @@ const productDiscounts = require('./productDiscounts/productDiscounts')
 const storeProductsDiscounts = require('./storeProductDiscounts/storeProductDiscounts')
 const productDiscountsCoupons = require('./productDiscountCoupons/productDiscountCoupons')
 
+app.use(cors())
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
