@@ -33,6 +33,7 @@ const getDiscountsById = (request, response) => {
 }
 
 const createDiscounts = (request, response) => {
+	console.log('body -------->', request.body)
     const { id_bodega, sku, starts, ends } = request.body
 	// yyyy mm dd
 	console.log('id bodega --------------->', id_bodega)
