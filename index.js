@@ -58,20 +58,6 @@ app.get('/', (request, response) => {
 // app.delete('/invoices/:id', invoices.deleteInvoices)
 // app.put('/invoices/:id', invoices.updateInvoices)
 
-// // sales
-// app.get('/sales', sales.getSales)
-// app.get('/sales/:id', sales.getSalesById)
-// app.post('/sales', sales.createSales)
-// app.delete('/sales/:id', sales.deleteSale)
-// app.put('/pointOfSasalesles/:id', sales.updateSales)
-
-// // sales products
-// app.get('/salesProducts', salesProducts.getSalesProducts)
-// app.get('/salesProducts/:id', salesProducts.getSalesProductsById)
-// app.post('/salesProducts', salesProducts.createSalesProducts)
-// app.delete('/salesProducts/:id', salesProducts.deleteSalesProducts)
-// app.put('/salesProducts/:id', salesProducts.updateSalesProducts)
-
 // // store products
 // app.get('/storeProducts', storeProducts.getStoreProducts)
 // app.get('/storeProducts/:id', storeProducts.getStoreProductsById)
@@ -109,6 +95,23 @@ app.delete('/discounts/:id', discounts.deleteDiscounts)
 app.put('/discounts/:id', discounts.updateDiscounts)
 app.get('/discounts/sku/:sku', discounts.getDiscountsSKU)
 app.get('/discounts/id_bodega/:id_bodega/sku/:sku', discounts.getDiscountsByActiveProduct)
+
+
+// // sales
+app.get('/sales', sales.getSales)
+app.get('/sales/:id', sales.getSalesById)
+app.post('/sales', sales.createSales)
+app.delete('/sales/:id', sales.deleteSale)
+app.put('/pointOfSasalesles/:id', sales.updateSales)
+
+// // sales products
+app.get('/salesProducts', salesProducts.getSalesProducts)
+app.get('/salesProducts/:id', salesProducts.getSalesProductsById)
+app.post('/salesProducts', salesProducts.createSalesProducts)
+app.delete('/salesProducts/:id', salesProducts.deleteSalesProducts)
+app.put('/salesProducts/:id', salesProducts.updateSalesProducts)
+
+
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}.`)

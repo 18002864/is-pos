@@ -33,54 +33,55 @@ const getSalesById = (request, response) => {
     })
 }
 
-// 	id_bodega INT NOT NULL,
-// 	total float,
-// 	total_discount float,
-// 	total_sale float,
-// 	status VARCHAR(100),
-// 	created_at DATE,
-// 	created_by VARCHAR ( 50 )
+// id_bodega INT NOT NULL,
+// massive_sale_id INT,
+// customer_id varchar(20),
+// total_sale float,	
+// total_discount float,
+// created_at DATE,
+// created_by VARCHAR ( 50 )
 
 const createSales = (request, response) => {
-    const {  } = request.body
+    const { id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+        created_at, created_by } = request.body
 
     pool.query(`insert into ${table_name}
-        () values($1,$2,$3,$4,$5,$6,$7)`,
-        [id_store, id_point_of_sale, id_invoice, externally_created,
-            total, total_discount, total_sale, status, is_delivery],
+        (id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+            created_at, created_by) values($1,$2,$3,$4,$5,$6,$7)`,
+        [
+            id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+            created_at, created_by
+        ],
 
         (error, results) => {
             if (error) {
                 throw error
             }
-            response.status(201).send(`Stores agregado ID: ${results.insertId}`)
+            response.status(201).send(``)
         })
 }
 
 const updateSales = (request, response) => {
     const id = parseInt(request.params.id)
-    const { id_store, id_point_of_sale, id_invoice, externally_created,
-        total, total_discount, total_sale, status, is_delivery,
-        created_at, created_by, updated_at, updated_by } = request.body
+    const { id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+        created_at, created_by } = request.body
     pool.query(
         `UPDATE ${table_name} SET 
-            id_store = $1, 
-            id_point_of_sale = $2,
-            id_invoice = $3,
-            externally_created = $4,
-            total = $5
-            total_discount = $6, 
-            total_sale = $7,
-            status = $8,
-            is_delivery = $9
-            WHERE ${id_from_table} = $10`,
-        [id_store, id_point_of_sale, id_invoice, externally_created,
-            total, total_discount, total_sale, status, is_delivery, id],
+            id_bodega = $1, 
+            massive_sale_id = $2,
+            customer_id = $3,
+            total_sale = $4,
+            total_discount = $5,
+            created_at = $6, 
+            created_by = $7
+            WHERE ${id_from_table} = $8`,
+        [id_bodega, massive_sale_id, customer_id, total_sale, 
+            total_discount, created_at, created_by, id],
         (error, results) => {
             if (error) {
                 throw error
             }
-            response.status(200).send(`Producto modificado con ID: ${id}`)
+            response.status(200).send(`Sales`)
         }
     )
 }
