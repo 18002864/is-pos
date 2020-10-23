@@ -107,6 +107,7 @@ app.get('/discounts/:id', discounts.getDiscountsById)
 app.post('/discounts', discounts.createDiscounts)
 app.delete('/discounts/:id', discounts.deleteDiscounts)
 app.put('/discounts/:id', discounts.updateDiscounts)
+app.get('/discounts/sku/:sku', discounts.getDiscountsSKU)
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}.`)

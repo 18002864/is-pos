@@ -33,13 +33,13 @@ const getDiscountsById = (request, response) => {
 }
 
 const createDiscounts = (request, response) => {
-	console.log('body -------->', request)
+	// console.log('body -------->', request)
     const { id_bodega, sku, starts, ends } = request.body
 	// yyyy mm dd
-	console.log('id bodega --------------->', id_bodega)
-	console.log('sku --------------->', sku)
-	console.log('starts --------------->', starts)
-	console.log('ends --------------->', ends)
+	// console.log('id bodega --------------->', id_bodega)
+	// console.log('sku --------------->', sku)
+	// console.log('starts --------------->', starts)
+	// console.log('ends --------------->', ends)
 	pool.query(`insert into ${table_name}
         (id_bodega, sku, starts, ends) values($1,$2,$3,$4)`,
 		[ id_bodega, sku, starts, ends ],
@@ -80,10 +80,21 @@ const deleteDiscounts = (request, response) => {
 	})
 }
 
+const getDiscountsSKU = (request, response) => {
+	const sku = request.params.sku
+	pool.query(`SELECT * FROM ${table_name} WHERE sku LIKE $1`, [sku], (error, results) => {
+		if (error) {
+			throw error
+		}
+		response.status(200).json(results.rows[0])
+	})
+}
+
 module.exports = {
 	getDiscounts,
 	getDiscountsById,
 	createDiscounts,
 	updateDiscounts,
-	deleteDiscounts
+	deleteDiscounts,
+	getDiscountsSKU
 }
