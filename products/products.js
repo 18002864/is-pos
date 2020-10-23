@@ -66,10 +66,26 @@ const deleteProduct = (request, response) => {
   })
 }
 
+const getProductsByAllFields = (request, response) => {
+	pool.query(`
+	select products.id_product, products.product_name, 
+	store_products.unit_price, store_product_discounts.discount_percentage from products 
+	inner join store_products ON products.id_product = store_products.id_product
+	inner join store_product_discounts ON products.id_product = store_product_discounts.id_product;`, 
+	(error, results) => {
+		if (error) {
+			console.log('error', error)
+			throw error
+		}
+		response.status(200).json(results.rows)
+	})
+}
+
 module.exports = {
 	getProducts,
 	getProductById,
 	createProduct,
 	deleteProduct,
-	updateProducts
+	updateProducts,
+	getProductsByAllFields
 }
