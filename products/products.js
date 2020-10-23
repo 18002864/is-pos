@@ -71,7 +71,7 @@ const getProductsByAllFields = (request, response) => {
 	select products.id_product, products.product_name, 
 	store_products.unit_price, store_product_discounts.discount_percentage from products 
 	inner join store_products ON products.id_product = store_products.id_product
-	inner join store_product_discounts ON products.id_product = store_product_discounts.id_product;`, 
+	inner join store_product_discounts ON products.id_product = store_product_discounts.id_product`, 
 	(error, results) => {
 		if (error) {
 			console.log('error', error)

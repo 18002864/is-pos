@@ -29,7 +29,7 @@ app.get('/', (request, response) => {
 
 // productos
 app.get('/products', products.getProducts)
-app.get('/products/:id', products.getProductById)
+//app.get('/products/:id', products.getProductById)
 app.post('/products', products.createProduct)
 app.delete('/products/:id', products.deleteProduct)
 app.put('/products/:id', products.updateProducts)
