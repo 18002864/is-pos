@@ -35,7 +35,10 @@ const getDiscountsById = (request, response) => {
 const createDiscounts = (request, response) => {
     const { id_bodega, sku, starts, ends } = request.body
 	// yyyy mm dd
-	console.log('--------------->', id_bodega)
+	console.log('id bodega --------------->', id_bodega)
+	console.log('sku --------------->', sku)
+	console.log('starts --------------->', starts)
+	console.log('ends --------------->', ends)
 	pool.query(`insert into ${table_name}
         (id_bodega, sku, starts, ends) values($1,$2,$3,$4)`,
 		[ id_bodega, sku, starts, ends ],
