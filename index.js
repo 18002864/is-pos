@@ -15,6 +15,8 @@ const productDiscounts = require('./productDiscounts/productDiscounts')
 const storeProductsDiscounts = require('./storeProductDiscounts/storeProductDiscounts')
 const productDiscountsCoupons = require('./productDiscountCoupons/productDiscountCoupons')
 
+const discounts = require('./discounts/discounts')
+
 app.use(cors())
 app.use(bodyParser.json())
 app.use(
@@ -99,7 +101,12 @@ app.get('/', (request, response) => {
 // app.put('/productDiscountsCoupons/:id', productDiscountsCoupons.updateProductDiscountCoupons)
 
 
-// /discounts
+//   discounts
+app.get('/discounts', discounts.getDiscounts)
+app.get('/discounts/:id', discounts.getDiscountsById)
+app.post('/discounts', discounts.createDiscounts)
+app.delete('/discounts/:id', discounts.deleteDiscounts)
+app.put('/discounts/:id', discounts.updateDiscounts)
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}.`)
