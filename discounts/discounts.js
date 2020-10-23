@@ -41,10 +41,10 @@ const getDiscountsById = (request, response) => {
 // ends        date 
 
 const createDiscounts = (request, response) => {
-    const { id_bodega, sku, name, descripcion, discount, starts, ends } = request.body
+	const { id_bodega, sku, name, descripcion, discount, starts, ends } = request.body
 	pool.query(`insert into ${table_name}
         (id_bodega, sku, name, descripcion, discount, starts, ends) values($1,$2,$3,$4,$5,$6,$7)`,
-		[ id_bodega, sku, name, descripcion, discount, starts, ends ],
+		[id_bodega, sku, name, descripcion, discount, starts, ends],
 		(error, results) => {
 			if (error) {
 				throw error
@@ -65,7 +65,7 @@ const updateDiscounts = (request, response) => {
 		discount = $5,
         starts = $6,
         ends = $7 WHERE ${id_from_table} = $8`,
-		[ id_bodega, sku, name, descripcion, discount, starts, ends, id ],
+		[id_bodega, sku, name, descripcion, discount, starts, ends, id],
 		(error, results) => {
 			if (error) {
 				throw error
@@ -91,7 +91,21 @@ const getDiscountsSKU = (request, response) => {
 		if (error) {
 			throw error
 		}
-		response.status(200).json(results.rows[0])
+		response.status(200).json(results.rows)
+	})
+}
+
+const getDiscountsByActiveProduct = (request, response) => {
+	const id_bodega = request.params.id_bodega
+	const sku = request.params.sku
+	pool.query(`
+		select sku, COALESCE (max(discount), 0 , max(discount)) as discount
+		from product_discount where id_bodega = $1 and sku = $2
+		and now() between starts and ends group by sku`, [id_bodega, sku], (error, results) => {
+		if (error) {
+			throw error
+		}
+		response.status(200).json(results.rows)
 	})
 }
 
@@ -101,5 +115,6 @@ module.exports = {
 	createDiscounts,
 	updateDiscounts,
 	deleteDiscounts,
-	getDiscountsSKU
+	getDiscountsSKU,
+	getDiscountsByActiveProduct
 }
