@@ -32,17 +32,19 @@ const getDiscountsById = (request, response) => {
 	})
 }
 
+// id_bodega   int not null,
+// sku         varchar(12),
+// name        varchar(200),
+// descripcion varchar(500),
+// discount    float,
+// starts      date,
+// ends        date 
+
 const createDiscounts = (request, response) => {
-	// console.log('body -------->', request)
-    const { id_bodega, sku, starts, ends } = request.body
-	// yyyy mm dd
-	// console.log('id bodega --------------->', id_bodega)
-	// console.log('sku --------------->', sku)
-	// console.log('starts --------------->', starts)
-	// console.log('ends --------------->', ends)
+    const { id_bodega, sku, name, descripcion, discount, starts, ends } = request.body
 	pool.query(`insert into ${table_name}
-        (id_bodega, sku, starts, ends) values($1,$2,$3,$4)`,
-		[ id_bodega, sku, starts, ends ],
+        (id_bodega, sku, name, descripcion, discount, starts, ends) values($1,$2,$3,$4,$5,$6,$7)`,
+		[ id_bodega, sku, name, descripcion, discount, starts, ends ],
 		(error, results) => {
 			if (error) {
 				throw error
@@ -53,14 +55,17 @@ const createDiscounts = (request, response) => {
 
 const updateDiscounts = (request, response) => {
 	const id = parseInt(request.params.id)
-	const { id_bodega, sku, starts, ends } = request.body
+	const { id_bodega, sku, name, descripcion, discount, starts, ends } = request.body
 	pool.query(
 		`UPDATE ${table_name} SET 
         id_bodega = $1, 
-        sku = $2,
-        starts = $3,
-        ends = $4 WHERE ${id_from_table} = $5`,
-		[ id_bodega, sku, starts, ends, id ],
+		sku = $2,
+		name = $3,
+		descripcion = $4,
+		discount = $5,
+        starts = $6,
+        ends = $7 WHERE ${id_from_table} = $8`,
+		[ id_bodega, sku, name, descripcion, discount, starts, ends, id ],
 		(error, results) => {
 			if (error) {
 				throw error

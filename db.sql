@@ -1,10 +1,14 @@
 create table product_discount(
-	id_discount serial primary key,  
-	id_bodega   int not null,
-	sku         varchar(12),
-	starts      date,
-	ends        date 
+  id_discount serial primary key,  
+  id_bodega   int not null,
+  sku         varchar(12),
+  name        varchar(200),
+  descripcion varchar(500),
+  discount    float,
+  starts      date,
+  ends        date 
 );
+
 
 create table sales(
 	id_sale serial PRIMARY KEY,
