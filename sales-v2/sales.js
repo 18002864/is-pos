@@ -57,7 +57,7 @@ const createSales = (request, response) => {
             if (error) {
                 throw error
             }
-            response.status(201).send(``)
+            response.status(201).send(results.insertId)
         })
 }
 
@@ -103,3 +103,20 @@ module.exports = {
     updateSales,
     deleteSale
 }
+
+
+// Esquema del finalito:
+
+// 1. Problema de funciones ortogonales. 15 puntos.
+
+// 2. Cálculo de una serie de fourier.   15 puntos
+
+// 3. Forma ángulo fase, 5 puntos. 
+
+// 3.  Serie de calcular transformadas. 20 puntos.
+
+// 4. Serie de calcular transformadas inversas. 20 puntos.
+
+// 5. Ecuación diferencial con series 10 puntos.
+
+// 6. Ecuación diferencial con transformadas 15 puntos.
