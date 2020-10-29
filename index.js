@@ -154,7 +154,8 @@ app.post('/auth', (request, response) => {
     data: { username, password }
   }).then(res => {
     if (res.status === 200) {
-      response.send(res.headers.data)
+      
+      response.send(res.data)
     }
   })
 })
