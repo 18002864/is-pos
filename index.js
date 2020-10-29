@@ -111,7 +111,7 @@ app.post('/pos/2/external', (request, response) => {
                       response.status(500).send('Algo exploto')
                     }
                   })
-                response.status(200).send(sales_result.rows[0].id_sale)
+                response.send({ id: sales_result.rows[0].id_sale })
               }
             })
           })
