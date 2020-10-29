@@ -1,7 +1,9 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const axios = require('axios')
 const cors = require('cors')
 const app = express()
+const { Pool } = require('pg')
 const PORT = process.env.PORT || 3000;
 
 const products = require('./products/products')
@@ -43,7 +45,7 @@ app.get('/', (request, response) => {
 // app.post('/stores', stores.createStore)
 // app.delete('/stores/:id', stores.deleteStore)
 // app.put('/stores/:id', stores.updateStore)
-  
+
 // // point of sales
 // app.get('/pointOfSales', pointOfSales.getPointOfSales)
 // app.get('/pointOfSales/:id', pointOfSales.getPointOfSalesById)
@@ -103,6 +105,130 @@ app.get('/sales/:id', sales.getSalesById)
 app.post('/sales', sales.createSales)
 app.delete('/sales/:id', sales.deleteSale)
 app.put('/pointOfSasalesles/:id', sales.updateSales)
+app.post('/sales/:id/external', (request, response) => {
+
+  // https://inventarios-is.herokuapp.com/pos/7/external-sales
+  // 
+
+  // const dataFromSales = {
+  //   id_bodega: 7,
+  //   massive_sale_id, 
+  //   customer_id, 
+  //   total_sale, 
+  //   total_discount,
+  //   created_at: new Date,
+  //   created_by: 'socio'
+  // }
+
+
+  // para sales
+  // id_bodega = 7
+  // massive_sale_id, customer_id, total_sale, total_discount
+  // created_at = Now()
+  // created_by = seguridad? username
+
+
+  // const { 
+  //   id_sale, id_bodega, sku, 
+  //   quantity, unit_price, discount_percentage, 
+  //   total_product, total_discount, total,
+  //   created_at, created_by 
+  // } = request.body
+
+  // para sales_products
+  // id_sale = after insert
+  // id_bodega = 7
+  // sku = products[x].product_code
+  // quantity = products.length
+  // unit_price = products[x].unit_price
+
+  // discount_percentage = products[x].discount_percentage
+  // total_product = products[x].total_product
+  // total_discount = products[x].total_discount
+  // total =  products[x].total
+  // created_at = Now()
+  // created_by = seguridad? username
+
+  // {
+  //   "sku": "HP-15-DB1022",
+  //   "name": "HP 15-DB1022LA ",
+  //   "description": "HP 15-DB1022LA RYZEN 3 2.6GHZ 16GB DDR4 1TB W10H 15.6",
+  //   "price": 4156,
+  //   "quantity": 998
+  // },
+
+  const pool = new Pool({
+    user: 'postgres',
+    host: 'is-pos.cpuskbampv3u.us-east-2.rds.amazonaws.com',
+    database: 'pos',
+    password: 'manchasymima',
+    port: 5432,
+  })
+
+  const {
+    massive_sale_id,
+    customer_id, total_sale,
+    total_discount
+  } = request.body
+
+  const { products } = request.body
+
+  const id_bodega = 7
+  const created_by = 'socio'
+
+  pool.query(`insert into sales
+  (id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+      created_at, created_by) values($1,$2,$3,$4,$5,Now(),$6) RETURNING id_sale`,
+    [
+      id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+      created_by
+    ],
+
+    (error, sales_result) => {
+      if (error) {
+        response.status(500).send('Something went wrong were sorry')
+      } else {
+        if (sales_result.rows.length > 0) {
+          products.map((item) => {
+
+            axios({
+              method: 'post',
+              url: 'https://inventarios-is.herokuapp.com/bodega/7/out',
+              data: {
+                sku: item.product_code,
+                quantity: item.quantity
+              }
+            }).then((externalApiResponse) => {
+              if (externalApiResponse.status === 200) {
+                pool.query(
+                  `insert into sales_products
+                (
+                  id_sale, id_bodega, sku, quantity, unit_price,
+                  discount_percentage, total_product, 
+                  total_discount, total, created_at, created_by
+                )
+                values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$10)`,
+                  [ sales_result.rows[0].id_sale, id_bodega, item.product_code, item.quantity,
+                    item.unit_price, item.discount_percentage, item.total_product,
+                    item.total_discount, total_sale, created_by
+                  ],
+                  (error, sales_products_reslt) => {
+                    if (error) {
+                      response.status(500).send('Algo exploto')
+                    }
+                  })
+                  response.status(200).send('Se creo todo maldito')
+              }
+            })
+          })
+        }
+        // console.log('------------>', result.rows[0].id_sale)
+        // response.status(201).send(result.insertId)
+      }
+    })
+
+})
+
 
 // // sales products
 app.get('/salesProducts', salesProducts.getSalesProducts)

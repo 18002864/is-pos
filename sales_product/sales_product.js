@@ -54,12 +54,12 @@ const createSalesProducts = (request, response) => {
         (id_sale, id_bodega, sku, quantity, unit_price,
             discount_percentage, total_product, total_discount, total,
             created_at, created_by)
-        values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$11)`,
+        values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$10)`,
 
 		[
             id_sale, id_bodega, sku, quantity, unit_price,
             discount_percentage, total_product, total_discount, total,
-            created_at, created_by
+            created_by
 		],
 
 		(error, results) => {
