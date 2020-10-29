@@ -184,7 +184,11 @@ app.post('/create/client', (request, response) => {
     method: 'post',
     url: 'https://ids-crm.herokuapp.com/api/costumer/create.php',
     data: { nit, dpi, cname, cdob, cphone, caddress, cemail, ccompany }
-  }).then(res => console.log('------>', res))
+  }).then(res => {
+    if (res.status === 200) {
+      response.status(200).send('OK')
+    }
+  })
 })
 
 
