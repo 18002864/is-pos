@@ -31,8 +31,6 @@ app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' })
 })
 
-
-
 //   discounts
 app.get('/discounts', discounts.getDiscounts)
 app.get('/discounts/:id', discounts.getDiscountsById)
@@ -42,7 +40,6 @@ app.put('/discounts/:id', discounts.updateDiscounts)
 app.get('/discounts/sku/:sku', discounts.getDiscountsSKU)
 app.get('/discounts/id_bodega/:id_bodega/sku/:sku', discounts.getDiscountsByActiveProduct)
 
-
 // // sales
 app.get('/sales', sales.getSales)
 app.get('/sales/:id', sales.getSalesById)
@@ -50,6 +47,7 @@ app.get('/sales/customer/:id', sales.getSalesByCustomerId)
 app.post('/sales', sales.createSales)
 app.delete('/sales/:id', sales.deleteSale)
 app.put('/pointOfSasalesles/:id', sales.updateSales)
+app.get('/pos/2/external-sales/:external_sale_id', sales.getExternalSales)
 app.post('/pos/2/external-sales', (request, response) => {
 
   const pool = new Pool({
@@ -59,24 +57,79 @@ app.post('/pos/2/external-sales', (request, response) => {
     password: 'manchasymima',
     port: 5432,
   })
-
-  const {
-    massive_sale_id,
-    customer_id, total_sale,
-    total_discount
-  } = request.body
-
   const { products } = request.body
-
   const id_bodega = 7
-  const created_by = 'socio'
 
-  pool.query(`insert into sales
-  (id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
-      created_at, created_by) values($1,$2,$3,$4,$5,Now(),$6) RETURNING id_sale`,
+  if (request.body.external_sale_id == undefined) {
+    const {
+      massive_sale_id,
+      customer_id, total_sale,
+      total_discount
+    } = request.body
+    const created_by = 'POS'
+    pool.query(`insert into sales
+    (id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+      created_at, created_by) values($1,$2,$3,$4,$5,now() at time zone 'America/Guatemala',$6) RETURNING id_sale`,
+      [
+        id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+        created_by
+      ],
+
+      (error, sales_result) => {
+        if (error) {
+          response.status(500).send('Something went wrong were sorry')
+        } else {
+          if (sales_result.rows.length > 0) {
+            products.map((item) => {
+              axios({
+                method: 'post',
+                url: 'https://inventarios-is.herokuapp.com/bodega/7/out',
+                data: {
+                  sku: item.product_code,
+                  quantity: item.quantity
+                }
+              }).then((externalApiResponse) => {
+                if (externalApiResponse.status === 200) {
+                  pool.query(
+                    `insert into sales_products
+                (
+                  id_sale, id_bodega, sku, quantity, unit_price,
+                  discount_percentage, total_product, 
+                  total_discount, total, created_at, created_by
+                )
+                values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$10)`,
+                    [sales_result.rows[0].id_sale, id_bodega, item.product_code, item.quantity,
+                    item.unit_price, item.discount_percentage, item.total_product,
+                    item.total_discount, item.total, created_by
+                    ],
+                    (error, sales_products_reslt) => {
+                      if (error) {
+                        response.status(500).send('Algo exploto')
+                      }
+                    })
+                  response.send({ id: sales_result.rows[0].id_sale })
+                }
+              })
+            })
+          }
+        }
+      })
+  } else {
+    const {
+      massive_sale_id,
+      customer_id, total_sale,
+      total_discount,
+      external_sale_id,
+      invoice_id
+    } = request.body
+    const created_by = 'SALES'
+    pool.query(`insert into sales
+      (id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
+      created_at, created_by, external_sale_id, invoice_id) 
+      values($1,$2,$3,$4,$5,now() at time zone 'America/Guatemala',$6,$7,$8) RETURNING id_sale`,
     [
       id_bodega, massive_sale_id, customer_id, total_sale, total_discount,
-      created_by
+      created_by,external_sale_id, invoice_id
     ],
 
     (error, sales_result) => {
@@ -104,7 +157,7 @@ app.post('/pos/2/external-sales', (request, response) => {
                 values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$10)`,
                   [sales_result.rows[0].id_sale, id_bodega, item.product_code, item.quantity,
                   item.unit_price, item.discount_percentage, item.total_product,
-                  item.total_discount, total_sale, created_by
+                  item.total_discount, item.total, created_by
                   ],
                   (error, sales_products_reslt) => {
                     if (error) {
@@ -118,7 +171,9 @@ app.post('/pos/2/external-sales', (request, response) => {
         }
       }
     })
+  }
 })
+
 
 // https://ids-crm.herokuapp.com/api/costumer/create.php
 
@@ -154,7 +209,7 @@ app.post('/auth', (request, response) => {
     data: { username, password }
   }).then(res => {
     if (res.status === 200) {
-      
+
       response.send(res.data)
     }
   })
