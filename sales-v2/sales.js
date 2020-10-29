@@ -13,7 +13,6 @@ const table_name = 'sales'
 const id_from_table = 'id_sale'
 
 
-
 const getSales = (request, response) => {
 	pool.query(`select * from ${table_name}`, (error, results) => {
 		if (error) {
@@ -89,61 +88,25 @@ const deleteSale = (request, response) => {
 	})
 }
 
-const externalSales = (request, response) => {
-	// Send a POST request
-	// axios({
-	// 	method: 'post',
-	// 	url: 'https://inventarios-is.herokuapp.com/pos/7/external-sales',
-	// 	data: {
-	// 		firstName: 'Fred',
-	// 		lastName: 'Flintstone'
-	// 	}
-	// })
-	// pool.query(`select * from ${table_name}`, (error, results) => {
-	// 	if (error) {
-	// 		console.log('error', error)
-	// 		throw error
-	// 	}
-	// 	response.status(200).json(results.rows)
-	// })
-	// https://inventarios-is.herokuapp.com/pos/7/external-sales
 
-	// {
-	// 	"massive_sale_id": 12345,
-	// 		"customer_id": 20,
-	// 			"total_sale": 69.25,
-	// 				"total_discount": 10.75,
-	// 					"products": [
-	// 						{
-	// 							"product_code": "JU_NAR_1LI",
-	// 							"quantity": 10,
-	// 							"unit_price": 5.5,
-	// 							"discount_percentage": 15,
-	// 							"total_product": 55,
-	// 							"total_discount": 8.25,
-	// 							"total": 46.75
-	// 						},
-	// 						{
-	// 							"product_code": "JU_NAR_500ML",
-	// 							"quantity": 10,
-	// 							"unit_price": 2.5,
-	// 							"discount_percentage": 10,
-	// 							"total_product": 25,
-	// 							"total_discount": 2.5,
-	// 							"total": 22.5
-	// 						}
-	// 					]
-	// }
+const getSalesByCustomerId = (request, response) => {
+	const id = parseInt(request.params.id)
+	pool.query(`SELECT * FROM ${table_name} WHERE customer_id = $1`, [id], (error, results) => {
+		if (error) {
+			throw error
+		}
+		response.status(200).json(results.rows[0])
+	})
 }
 
 
 module.exports = {
+	getSalesByCustomerId,
 	getSales,
 	getSalesById,
 	createSales,
 	updateSales,
-	deleteSale,
-	externalSales
+	deleteSale
 }
 
 

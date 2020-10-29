@@ -102,10 +102,23 @@ const deleteSalesProducts = (request, response) => {
 	})
 }
 
+const getSalesProductsBySalesId = (request, response) => {
+	const id = parseInt(request.params.id)
+	pool.query(`SELECT * FROM ${table_name} WHERE id_sale = $1`, [id], 
+	(error, results) => {
+		if (error) {
+			throw error
+		}
+		response.status(200).json(results.rows)
+	})
+}
+
+
 module.exports = {
 	getSalesProducts,
 	getSalesProductsById,
 	createSalesProducts,
 	updateSalesProducts,
-	deleteSalesProducts
+	deleteSalesProducts,
+	getSalesProductsBySalesId
 }

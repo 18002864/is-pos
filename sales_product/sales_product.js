@@ -22,27 +22,6 @@ const getSalesProducts = (request, response) => {
 	})
 }
 
-const getSalesProductsById = (request, response) => {
-	const id = parseInt(request.params.id)
-	pool.query(`SELECT * FROM ${table_name} WHERE ${id_from_table} = $1`, [id], (error, results) => {
-		if (error) {
-			throw error
-		}
-		response.status(200).json(results.rows[0])
-	})
-}
-
-// id_sale INT NOT NULL,		
-// id_bodega INT NOT NULL,
-// sku varchar(12),
-// quantity INT,
-// unit_price float,
-// discount_percentage int,
-// total_product float,
-// total_discount float,
-// total float,
-// created_at DATE,
-// created_by VARCHAR ( 50 ),
 
 const createSalesProducts = (request, response) => {
 
@@ -117,10 +96,36 @@ const deleteSalesProducts = (request, response) => {
 	})
 }
 
+
+
+const getSalesProductsById = (request, response) => {
+	const id = parseInt(request.params.id)
+	pool.query(`SELECT * FROM ${table_name} WHERE ${id_from_table} = $1`, [id], (error, results) => {
+		if (error) {
+			throw error
+		}
+		response.status(200).json(results.rows[0])
+	})
+}
+
+
+const getSalesProductsBySalesId = (request, response) => {
+	const id = parseInt(request.params.id)
+	pool.query(`SELECT * FROM ${table_name} WHERE id_sale = $1`, [id], 
+	(error, results) => {
+		if (error) {
+			throw error
+		}
+		response.status(200).json(results.rows)
+	})
+}
+
+
 module.exports = {
 	getSalesProducts,
 	getSalesProductsById,
 	createSalesProducts,
 	updateSalesProducts,
-	deleteSalesProducts
+	deleteSalesProducts,
+	getSalesProductsBySalesId
 }
