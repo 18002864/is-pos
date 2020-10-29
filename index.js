@@ -105,7 +105,7 @@ app.get('/sales/:id', sales.getSalesById)
 app.post('/sales', sales.createSales)
 app.delete('/sales/:id', sales.deleteSale)
 app.put('/pointOfSasalesles/:id', sales.updateSales)
-app.post('/sales/:id/external', (request, response) => {
+app.post('/pos/2/external', (request, response) => {
 
   // https://inventarios-is.herokuapp.com/pos/7/external-sales
   // 
