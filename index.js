@@ -143,7 +143,7 @@ app.get('/salesProducts/:id', salesProducts.getSalesProductsById)
 app.post('/salesProducts', salesProducts.createSalesProducts)
 app.delete('/salesProducts/:id', salesProducts.deleteSalesProducts)
 app.put('/salesProducts/:id', salesProducts.updateSalesProducts)
-app.get('/salesProducts/:id', salesProducts.getSalesProductsBySalesId)
+app.get('/salesProducts/sale/:id', salesProducts.getSalesProductsBySalesId)
 
 
 app.post('/auth', (request, response) => {
