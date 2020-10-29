@@ -50,7 +50,7 @@ app.get('/sales/customer/:id', sales.getSalesByCustomerId)
 app.post('/sales', sales.createSales)
 app.delete('/sales/:id', sales.deleteSale)
 app.put('/pointOfSasalesles/:id', sales.updateSales)
-app.post('/pos/2/external', (request, response) => {
+app.post('/pos/2/external-sales', (request, response) => {
 
   const pool = new Pool({
     user: 'postgres',
