@@ -107,56 +107,6 @@ app.delete('/sales/:id', sales.deleteSale)
 app.put('/pointOfSasalesles/:id', sales.updateSales)
 app.post('/pos/2/external', (request, response) => {
 
-  // https://inventarios-is.herokuapp.com/pos/7/external-sales
-  // 
-
-  // const dataFromSales = {
-  //   id_bodega: 7,
-  //   massive_sale_id, 
-  //   customer_id, 
-  //   total_sale, 
-  //   total_discount,
-  //   created_at: new Date,
-  //   created_by: 'socio'
-  // }
-
-
-  // para sales
-  // id_bodega = 7
-  // massive_sale_id, customer_id, total_sale, total_discount
-  // created_at = Now()
-  // created_by = seguridad? username
-
-
-  // const { 
-  //   id_sale, id_bodega, sku, 
-  //   quantity, unit_price, discount_percentage, 
-  //   total_product, total_discount, total,
-  //   created_at, created_by 
-  // } = request.body
-
-  // para sales_products
-  // id_sale = after insert
-  // id_bodega = 7
-  // sku = products[x].product_code
-  // quantity = products.length
-  // unit_price = products[x].unit_price
-
-  // discount_percentage = products[x].discount_percentage
-  // total_product = products[x].total_product
-  // total_discount = products[x].total_discount
-  // total =  products[x].total
-  // created_at = Now()
-  // created_by = seguridad? username
-
-  // {
-  //   "sku": "HP-15-DB1022",
-  //   "name": "HP 15-DB1022LA ",
-  //   "description": "HP 15-DB1022LA RYZEN 3 2.6GHZ 16GB DDR4 1TB W10H 15.6",
-  //   "price": 4156,
-  //   "quantity": 998
-  // },
-
   const pool = new Pool({
     user: 'postgres',
     host: 'is-pos.cpuskbampv3u.us-east-2.rds.amazonaws.com',
@@ -190,7 +140,6 @@ app.post('/pos/2/external', (request, response) => {
       } else {
         if (sales_result.rows.length > 0) {
           products.map((item) => {
-
             axios({
               method: 'post',
               url: 'https://inventarios-is.herokuapp.com/bodega/7/out',
@@ -208,25 +157,34 @@ app.post('/pos/2/external', (request, response) => {
                   total_discount, total, created_at, created_by
                 )
                 values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$10)`,
-                  [ sales_result.rows[0].id_sale, id_bodega, item.product_code, item.quantity,
-                    item.unit_price, item.discount_percentage, item.total_product,
-                    item.total_discount, total_sale, created_by
+                  [sales_result.rows[0].id_sale, id_bodega, item.product_code, item.quantity,
+                  item.unit_price, item.discount_percentage, item.total_product,
+                  item.total_discount, total_sale, created_by
                   ],
                   (error, sales_products_reslt) => {
                     if (error) {
                       response.status(500).send('Algo exploto')
                     }
                   })
-                  response.status(200).send('Se creo todo maldito')
+                response.status(200).send(sales_result.rows[0].id_sale)
               }
             })
           })
         }
-        // console.log('------------>', result.rows[0].id_sale)
-        // response.status(201).send(result.insertId)
       }
     })
+})
 
+
+// https://ids-crm.herokuapp.com/api/costumer/create.php
+
+app.post('/create/client', (request, response) => {
+  const { nit, dpi, cname, cdob, cphone, caddress, cemail, ccompany } = request.body
+  axios({
+    method: 'post',
+    url: 'https://ids-crm.herokuapp.com/api/costumer/create.php',
+    data: { nit, dpi, cname, cdob, cphone, caddress, cemail, ccompany }
+  }).then(res => console.log('------>', res))
 })
 
 
