@@ -4,6 +4,8 @@ const axios = require('axios')
 const cors = require('cors')
 const app = express()
 const { Pool } = require('pg')
+
+
 const PORT = process.env.PORT || 3000;
 const { createInvoice } = require("./invoicePdf/createInvoice.js");
 const { createInvoiceInternal } = require("./invoicePdf/createInvoiceInternal.js");
@@ -273,7 +275,7 @@ app.get('/pos/2/internal-sales/:sale_id/invoice', (request, response) => {
             if (info.nit != null) {
               body[0].nombres = info.cname;
               body[0].direccion = info.caddress;
-              body[0].email = info.cemail + ", " + info.cphone;;
+              body[0].email = info.cemail + ", " + info.cphone;
               createInvoiceInternal(body[0], response);
             }
           })
@@ -315,7 +317,6 @@ app.post('/auth', (request, response) => {
     data: { username, password }
   }).then(res => {
     if (res.status === 200) {
-
       response.send(res.data)
     }
   })

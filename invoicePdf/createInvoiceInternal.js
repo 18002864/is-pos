@@ -1,5 +1,21 @@
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
+const nodemailer = require('nodemailer');
+
+// const pdfBuffer = await new Promise(resolve => {
+//   const doc = new PDFDocument()
+
+//   doc.text('hello world', 100, 50)
+//   doc.end()
+
+//   //Finalize document and convert to buffer array
+//   let buffers = []
+//   doc.on("data", buffers.push.bind(buffers))
+//   doc.on("end", () => {
+//     let pdfData = new Uint8Array(Buffer.concat(buffers))
+//     resolve(pdfData)
+//   })
+// })
 
 function createInvoiceInternal(invoice, response) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -10,6 +26,40 @@ function createInvoiceInternal(invoice, response) {
   generateFooter(doc);
   doc.pipe(response)
   doc.end();
+
+  let buffers = [];
+  doc.on('data', buffers.push.bind(buffers));
+  doc.on('end', () => {
+
+    let pdfData = Buffer.concat(buffers);
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: '18002864@galileo.edu',
+        pass: 'Barcelona7.'
+      }
+    });
+  
+    const mailOptions = {
+      from: 'danylang77@gmail.com',
+      to: '16003303@galileo.edu',
+      subject: 'Factura',
+      attachments: [{
+        filename: 'attachment.pdf',
+        content: pdfData,
+      }],
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  })
+
 }
 
 function generateHeader(doc) {
@@ -44,13 +94,13 @@ function generateCustomerInformation(doc, invoice) {
     .text("Cliente:", 50, customerInformationTop + 15)
     .text(invoice.customer_id, 150, customerInformationTop + 15)
     .text("", 50, customerInformationTop + 30)
-    .text("",150,customerInformationTop + 30)
+    .text("", 150, customerInformationTop + 30)
 
     .font("Helvetica-Bold")
     .text(invoice.nombres, 300, customerInformationTop)
     .font("Helvetica")
     .text(invoice.direccion, 300, customerInformationTop + 15)
-    .text(invoice.email,300,customerInformationTop + 30
+    .text(invoice.email, 300, customerInformationTop + 30
     )
     .moveDown();
 
@@ -83,7 +133,7 @@ function generateInvoiceTable(doc, invoice) {
       item.quantity,
       item.product_code,
       formatCurrency(item.unit_price),
-      '%'+item.discount_percentage,
+      '%' + item.discount_percentage,
       formatCurrency(item.total)
     );
 
@@ -165,5 +215,5 @@ function formatDate(date) {
 }
 
 module.exports = {
-    createInvoiceInternal
+  createInvoiceInternal
 };
