@@ -23,7 +23,7 @@ const dashboardData = async (request, response) => {
 		WHERE created_at >= now() at time zone 'America/Guatemala' - INTERVAL '6 day'
 		AND sku IN (SELECT sku FROM (SELECT sku, SUM(total_product) FROM sales_products GROUP BY sku ORDER BY 2 DESC LIMIT 2) AS A)
 		GROUP BY created_at, sku
-		ORDER BY created_at	`, []);
+		ORDER BY created_at,sku`, []);
 
 		var money_in_stock = 0;
 		//inventario
@@ -49,7 +49,7 @@ const dashboardData = async (request, response) => {
 			daily_sales: daily_sales.rows,
 			money_in_stock: money_in_stock,
 			top_products: top_products.rows,
-			returns: returns.rows,
+			returns: parseInt(returns.rows[0].sum),
 			returns_chart: returns_chart.rows, 
 		})
 
