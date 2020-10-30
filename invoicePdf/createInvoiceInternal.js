@@ -1,7 +1,7 @@
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
 
-function createInvoice(invoice, response) {
+function createInvoiceInternal(invoice, response) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
 
   generateHeader(doc);
@@ -39,12 +39,12 @@ function generateCustomerInformation(doc, invoice) {
     .fontSize(10)
     .text("No:", 50, customerInformationTop)
     .font("Helvetica-Bold")
-    .text(invoice.invoice_id, 150, customerInformationTop)
+    .text(invoice.id_sale, 150, customerInformationTop)
     .font("Helvetica")
-    .text("Venta:", 50, customerInformationTop + 15)
-    .text(invoice.external_sale_id, 150, customerInformationTop + 15)
-    .text("Cliente:", 50, customerInformationTop + 30)
-    .text(invoice.customer_id,150,customerInformationTop + 30)
+    .text("Cliente:", 50, customerInformationTop + 15)
+    .text(invoice.customer_id, 150, customerInformationTop + 15)
+    .text("", 50, customerInformationTop + 30)
+    .text("",150,customerInformationTop + 30)
 
     .font("Helvetica-Bold")
     .text(invoice.nombres, 300, customerInformationTop)
@@ -111,18 +111,6 @@ function generateInvoiceTable(doc, invoice) {
     "",
     formatCurrency(invoice.total_sale)
   );
-
-  /*const duePosition = paidToDatePosition + 25;
-  doc.font("Helvetica-Bold");
-  generateTableRow(
-    doc,
-    duePosition,
-    "",
-    "",
-    "Balance Due",
-    "",
-    formatCurrency(invoice.subtotal - invoice.paid)
-  );*/
   doc.font("Helvetica");
 }
 
@@ -177,5 +165,5 @@ function formatDate(date) {
 }
 
 module.exports = {
-  createInvoice
+    createInvoiceInternal
 };

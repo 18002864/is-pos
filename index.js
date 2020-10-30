@@ -6,6 +6,7 @@ const app = express()
 const { Pool } = require('pg')
 const PORT = process.env.PORT || 3000;
 const { createInvoice } = require("./invoicePdf/createInvoice.js");
+const { createInvoiceInternal } = require("./invoicePdf/createInvoiceInternal.js");
 
 const products = require('./products/products')
 const stores = require('./stores/stores')
@@ -99,7 +100,7 @@ app.post('/pos/2/external-sales', (request, response) => {
                   discount_percentage, total_product, 
                   total_discount, total, created_at, created_by
                 )
-                values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$10)`,
+                values($1,$2,$3,$4,$5,$6,$7,$8,$9,now() at time zone 'America/Guatemala',$10)`,
                     [sales_result.rows[0].id_sale, id_bodega, item.product_code, item.quantity,
                     item.unit_price, item.discount_percentage, item.total_product,
                     item.total_discount, item.total, created_by
@@ -156,7 +157,7 @@ app.post('/pos/2/external-sales', (request, response) => {
                   discount_percentage, total_product, 
                   total_discount, total, created_at, created_by
                 )
-                values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now(),$10)`,
+                values($1,$2,$3,$4,$5,$6,$7,$8,$9,now() at time zone 'America/Guatemala',$10)`,
                     [sales_result.rows[0].id_sale, id_bodega, item.product_code, item.quantity,
                     item.unit_price, item.discount_percentage, item.total_product,
                     item.total_discount, item.total, created_by
@@ -229,6 +230,53 @@ app.get('/pos/2/external-sales/:external_sale_id/invoice', (request, response) =
                 }
               })
             })
+        })
+    })
+})
+
+app.get('/pos/2/internal-sales/:sale_id/invoice', (request, response) => {
+  const id = request.params.sale_id;
+  const pool = new Pool({
+    user: 'postgres',
+    host: 'is-pos.cpuskbampv3u.us-east-2.rds.amazonaws.com',
+    database: 'pos',
+    password: 'manchasymima',
+    port: 5432,
+  })
+  pool.query(`
+	select massive_sale_id, id_sale, customer_id, invoice_id,
+        total_sale, total_discount
+            from sales
+            where id_sale = $1`, [id],
+    (error, results) => {
+      if (error) {
+        console.log('error', error)
+        throw error
+      }
+      let body = results.rows
+      pool.query(`
+        select sku product_code, quantity, unit_price, discount_percentage,
+            total_product, total_discount, total
+            from sales_products
+                where id_sale = $1 ;`, [id],
+        (error2, results2) => {
+          if (error2) {
+            console.log('error', error2)
+            throw error2
+          }
+          body[0].products = results2.rows
+          axios({
+            method: 'get',
+            url: 'https://ids-crm.herokuapp.com/api/costumer/read_single.php?nit=' + body[0].customer_id,
+          }).then(res => {
+            let info = res.data;
+            if (info.nit != null) {
+              body[0].nombres = info.cname;
+              body[0].direccion = info.caddress;
+              body[0].email = info.cemail + ", " + info.cphone;;
+              createInvoiceInternal(body[0], response);
+            }
+          })
         })
     })
 })
