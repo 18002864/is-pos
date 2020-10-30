@@ -2,15 +2,43 @@ const fs = require("fs");
 const PDFDocument = require("pdfkit");
 const nodemailer = require('nodemailer');
 
-function createInvoiceInternal(invoice, response) {
+function sendInvoice(invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
 
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
   generateFooter(doc);
-  doc.pipe(response);
+  //doc.pipe(response)
   doc.end();
+  let buffers = [];
+  doc.on('data', buffers.push.bind(buffers));
+  doc.on('end', () => {
+    let pdfData = Buffer.concat(buffers);
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: '18002864@galileo.edu',
+        pass: 'Barcelona7.'
+      }
+    });
+    const mailOptions = {
+      to: invoice.email,
+      subject: 'POS UG - Factura - ' + invoice.invoice_id,
+      html: "<p>!Muchas Gracias por tú compra <strong>"+invoice.nombres+"</strong>!</p><br>Adjuntamos tú factura",
+      attachments: [{
+        filename: 'Factura - ' + invoice.invoice_id + '.pdf',
+        content: pdfData,
+      }],
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email Enviado');
+      }
+    });
+  })  
 }
 
 function generateHeader(doc) {
@@ -40,18 +68,18 @@ function generateCustomerInformation(doc, invoice) {
     .fontSize(10)
     .text("No:", 50, customerInformationTop)
     .font("Helvetica-Bold")
-    .text(invoice.id_sale, 150, customerInformationTop)
+    .text(invoice.invoice_id, 150, customerInformationTop)
     .font("Helvetica")
-    .text("Cliente:", 50, customerInformationTop + 15)
-    .text(invoice.customer_id, 150, customerInformationTop + 15)
-    .text("", 50, customerInformationTop + 30)
-    .text("", 150, customerInformationTop + 30)
+    .text("Venta:", 50, customerInformationTop + 15)
+    .text(invoice.external_sale_id, 150, customerInformationTop + 15)
+    .text("Cliente:", 50, customerInformationTop + 30)
+    .text(invoice.customer_id,150,customerInformationTop + 30)
 
     .font("Helvetica-Bold")
     .text(invoice.nombres, 300, customerInformationTop)
     .font("Helvetica")
     .text(invoice.direccion, 300, customerInformationTop + 15)
-    .text(invoice.email, 300, customerInformationTop + 30
+    .text(invoice.email,300,customerInformationTop + 30
     )
     .moveDown();
 
@@ -84,7 +112,7 @@ function generateInvoiceTable(doc, invoice) {
       item.quantity,
       item.product_code,
       formatCurrency(item.unit_price),
-      '%' + item.discount_percentage,
+      '%'+item.discount_percentage,
       formatCurrency(item.total)
     );
 
@@ -112,6 +140,18 @@ function generateInvoiceTable(doc, invoice) {
     "",
     formatCurrency(invoice.total_sale)
   );
+
+  /*const duePosition = paidToDatePosition + 25;
+  doc.font("Helvetica-Bold");
+  generateTableRow(
+    doc,
+    duePosition,
+    "",
+    "",
+    "Balance Due",
+    "",
+    formatCurrency(invoice.subtotal - invoice.paid)
+  );*/
   doc.font("Helvetica");
 }
 
@@ -166,5 +206,5 @@ function formatDate(date) {
 }
 
 module.exports = {
-  createInvoiceInternal
+    sendInvoice
 };

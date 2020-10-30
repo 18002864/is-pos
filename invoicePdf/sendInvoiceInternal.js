@@ -2,15 +2,43 @@ const fs = require("fs");
 const PDFDocument = require("pdfkit");
 const nodemailer = require('nodemailer');
 
-function createInvoiceInternal(invoice, response) {
+function sendInvoiceInternal(invoice) {
   let doc = new PDFDocument({ size: "A4", margin: 50 });
 
   generateHeader(doc);
   generateCustomerInformation(doc, invoice);
   generateInvoiceTable(doc, invoice);
   generateFooter(doc);
-  doc.pipe(response);
+  //doc.pipe(response);
   doc.end();
+  let buffers = [];
+  doc.on('data', buffers.push.bind(buffers));
+  doc.on('end', () => {
+    let pdfData = Buffer.concat(buffers);
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: '18002864@galileo.edu',
+        pass: 'Barcelona7.'
+      }
+    });
+    const mailOptions = {
+      to: invoice.email,
+      subject: 'POS UG - Factura - ' + invoice.id_sale,
+      html: "<p>!Muchas Gracias por tú compra <strong>"+invoice.nombres+"</strong>!</p><br>Adjuntamos tú factura",
+      attachments: [{
+        filename: 'Factura - ' + invoice.id_sale + '.pdf',
+        content: pdfData,
+      }],
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email Enviado');
+      }
+    });
+  })
 }
 
 function generateHeader(doc) {
@@ -166,5 +194,5 @@ function formatDate(date) {
 }
 
 module.exports = {
-  createInvoiceInternal
+    sendInvoiceInternal
 };

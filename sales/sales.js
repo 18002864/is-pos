@@ -101,52 +101,11 @@ const getSalesByCustomerId = (request, response) => {
     })
 }
 
-const getExternalSales = (request, response) => {
-    const id = request.params.external_sale_id;
-    pool.query(`
-	select massive_sale_id, external_sale_id, customer_id, invoice_id,
-        total_sale, total_discount
-            from sales
-            where external_sale_id = $1`, [id],
-        (error, results) => {
-            if (error) {
-                console.log('error', error)
-                throw error
-            }
-            let body = results.rows
-            
-            pool.query(`
-            select id_sale from sales where external_sale_id = $1;`, [id],
-                    (error2, results2) => {
-                        if (error2) {
-                            console.log('error', error2)
-                            throw error2
-                        }
-                        let id_sale = results2.rows[0].id_sale
-
-                        pool.query(`
-                            select sku product_code, quantity, unit_price, discount_percentage,
-                                total_product, total_discount, total
-                                from sales_products
-                                    where id_sale = $1 ;`, [id_sale],
-                                    (error3, results3) => {
-                                        if (error3) {
-                                            console.log('error', error3)
-                                            throw error3
-                                        }
-                                        body[0].products = results3.rows
-                                        response.status(200).json(body)
-                                    })
-                        })
-        })
-}
-
 module.exports = {
     getSales,
     getSalesById,
     createSales,
     updateSales,
     deleteSale,
-    getSalesByCustomerId,
-    getExternalSales
+    getSalesByCustomerId
 }
