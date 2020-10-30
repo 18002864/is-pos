@@ -23,6 +23,10 @@ const productDiscountsCoupons = require('./productDiscountCoupons/productDiscoun
 
 const discounts = require('./discounts/discounts')
 
+
+const reports = require('./reports/reports')
+const dashboard = require('./dashboard/dashboard')
+
 app.use(cors())
 app.use(bodyParser.json())
 app.use(
@@ -34,6 +38,13 @@ app.use(
 app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' })
 })
+
+//    reports
+app.get('/reports/nit/:nit',reports.getAllSalesFromClient)
+app.get('/reports/allsales/:start/:end',reports.getAllSales)
+
+//    dashboard
+app.get('/dashboard',dashboard.dashboardData)
 
 //   discounts
 app.get('/discounts', discounts.getDiscounts)
