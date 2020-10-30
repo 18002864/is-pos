@@ -26,6 +26,7 @@ const discounts = require('./discounts/discounts')
 
 const reports = require('./reports/reports')
 const dashboard = require('./dashboard/dashboard')
+const returns = require('./returns/returns')
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -45,6 +46,12 @@ app.get('/reports/allsales/:start/:end',reports.getAllSales)
 
 //    dashboard
 app.get('/dashboard',dashboard.dashboardData)
+
+//    returns
+app.get('/returns/invoice/:invoice',returns.getInvoiceProducts)
+app.post('/returns/update',returns.postReturn)
+app.delete('/returns/delete/:invoice',returns.deleteReturnedInvoice)
+
 
 //   discounts
 app.get('/discounts', discounts.getDiscounts)
