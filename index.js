@@ -8,16 +8,10 @@ const { Pool } = require('pg')
 
 const PORT = process.env.PORT || 3000;
 
-const products = require('./products/products')
-const stores = require('./stores/stores')
-const pointOfSales = require('./pointOfSales/pointOfSales')
-const invoices = require('./invoices/invoices')
+
 const sales = require('./sales/sales')
 const salesProducts = require('./salesProducts/salesProducts')
-const storeProducts = require('./storeProducts/storeProducts')
-const productDiscounts = require('./productDiscounts/productDiscounts')
-const storeProductsDiscounts = require('./storeProductDiscounts/storeProductDiscounts')
-const productDiscountsCoupons = require('./productDiscountCoupons/productDiscountCoupons')
+const bodegas = require('./bodegas/bodegas')
 
 const discounts = require('./discounts/discounts')
 
@@ -53,12 +47,12 @@ app.delete('/returns/delete/:invoice',returns.deleteReturnedInvoice)
 
 
 //   discounts
-app.get('/discounts', discounts.getDiscounts)
+app.get('/discounts/id_bodega/:id_bodega', discounts.getDiscounts)
 app.get('/discounts/:id', discounts.getDiscountsById)
 app.post('/discounts', discounts.createDiscounts)
 app.delete('/discounts/:id', discounts.deleteDiscounts)
 app.put('/discounts/:id', discounts.updateDiscounts)
-app.get('/discounts/sku/:sku', discounts.getDiscountsSKU)
+app.get('/discounts/id_bodega/:id_bodega/sku/:sku', discounts.getDiscountsSKU)
 app.get('/discounts/id_bodega/:id_bodega/sku/:sku', discounts.getDiscountsByActiveProduct)
 
 // // sales
@@ -70,10 +64,10 @@ app.delete('/sales/:id', sales.deleteSale)
 app.put('/pointOfSasalesles/:id', sales.updateSales)
 
 // para sales
-app.post('/pos/2/external-sales', external_sales.create_external_sales)
-app.get('/pos/2/external-sales/:external_sale_id', external_sales.get_external_sales)
-app.get('/pos/2/external-sales/:external_sale_id/invoice', external_sales.get_external_sales_invoice)
-app.get('/pos/2/internal-sales/:sale_id/invoice', external_sales.get_internal_sales_invoice)
+app.post('/pos/:pos_id/external-sales', external_sales.create_external_sales)
+app.get('/pos/:pos_id/external-sales/:external_sale_id', external_sales.get_external_sales)
+app.get('/pos/:pos_id/external-sales/:external_sale_id/invoice', external_sales.get_external_sales_invoice)
+app.get('/pos/:pos_id/internal-sales/:sale_id/invoice', external_sales.get_internal_sales_invoice)
 
 // https://ids-crm.herokuapp.com/api/costumer/create.php
 app.post('/create/client', (request, response) => {
@@ -97,6 +91,8 @@ app.delete('/salesProducts/:id', salesProducts.deleteSalesProducts)
 app.put('/salesProducts/:id', salesProducts.updateSalesProducts)
 app.get('/salesProducts/sale/:id', salesProducts.getSalesProductsBySalesId)
 
+// bodegas
+app.get('/bodegas', bodegas.getBodegas)
 
 app.post('/auth', (request, response) => {
   const { username, password } = request.body

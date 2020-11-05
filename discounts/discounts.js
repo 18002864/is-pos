@@ -13,7 +13,8 @@ const id_from_table = 'id_discount'
 
 
 const getDiscounts = (request, response) => {
-	pool.query(`select * from ${table_name}`, (error, results) => {
+	const id_bodega = request.params.id_bodega
+	pool.query(`select * from ${table_name} WHERE id_bodega = $1`,[id_bodega], (error, results) => {
 		if (error) {
 			console.log('error', error)
 			throw error
@@ -86,8 +87,9 @@ const deleteDiscounts = (request, response) => {
 }
 
 const getDiscountsSKU = (request, response) => {
+	const id_bodega = request.params.id_bodega
 	const sku = request.params.sku
-	pool.query(`SELECT * FROM ${table_name} WHERE sku LIKE $1`, [sku], (error, results) => {
+	pool.query(`SELECT * FROM ${table_name} WHERE id_bodega = $1 and sku LIKE $2`, [id_bodega,sku], (error, results) => {
 		if (error) {
 			throw error
 		}
