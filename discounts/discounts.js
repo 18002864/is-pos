@@ -100,7 +100,7 @@ const getDiscountsSKU = (request, response) => {
 const getDiscountsByActiveProduct = (request, response) => {
 	const id_bodega = request.params.id_bodega
 	const sku = request.params.sku
-	
+	//console.log("bodega: " + id_bodega + " sku: " + sku);
 	pool.query(`
 		select sku, COALESCE (max(discount), 0 , max(discount)) as discount from product_discount
 		  where id_bodega = $1 and sku = $2 and now() at time zone 'America/Guatemala' between starts and ends+1 group by sku`, 

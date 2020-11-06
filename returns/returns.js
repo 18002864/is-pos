@@ -88,7 +88,7 @@ const postReturn = async (request, response) => {
 		var b = await pool.query(`
 		DELETE FROM sales WHERE id_sale = $1`, [invoice]);
 		
-		console.log(bodegas);
+		//console.log(bodegas);
 
 		await axios({
 			method: 'post',

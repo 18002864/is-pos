@@ -14,7 +14,7 @@ const id_from_table2 = 'id_inventario'
 
 
 const getBodegas = (request, response) => {
-	pool.query(`select * from ${table_name}`, (error, results) => {
+	pool.query(`select * from ${table_name} order by id_inventario`, (error, results) => {
 		if (error) {
 			console.log('error', error)
 			throw error

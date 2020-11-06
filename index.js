@@ -3,20 +3,36 @@ const bodyParser = require('body-parser')
 const axios = require('axios')
 const cors = require('cors')
 const app = express()
-const { Pool } = require('pg')
-const jwt = require('njwt')
 const jwt_decode = require("jwt-decode");
 
 const PORT = process.env.PORT || 3000;
 
-//const publicKeySecurity = 'MEgCQQCq0bvj9ahjo7UF1uZSyypL60JTv0lWt1vD9UT62NQkP/5zVXCBHj1+mxImbbLzCh4LcGe3ee3CvJ4lLD70HvAdAgMBAAE=';
-
-
+// Validar token
 const base64 = require('base64url');
 const crypto = require('crypto');
 const fs = require("fs");
 
+const sales = require('./sales/sales')
+const salesProducts = require('./salesProducts/salesProducts')
+const bodegas = require('./bodegas/bodegas')
+const discounts = require('./discounts/discounts')
+const external_sales = require('./external_sales/external_sales')
+const reports = require('./reports/reports')
+const dashboard = require('./dashboard/dashboard')
+const returns = require('./returns/returns')
+const inventory = require('./inventory/inventory')
+const security = require('./security/security')
+const createInvoiceInternal = require('./invoicePdf/createInvoiceInternal')
 
+security.getJWTServiceLocalUse();
+
+app.use(cors())
+app.use(bodyParser.json())
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+)
 
 isValidJWT = function (JWT) {
   const PUB_KEY = fs.readFileSync('securityPublicKey.pem', 'utf8');
@@ -32,40 +48,6 @@ isValidJWT = function (JWT) {
   let signatureIsValid = verifyFunction.verify(PUB_KEY, jwtSignatureBase64, 'base64');
   return signatureIsValid;
 }
-
-const sales = require('./sales/sales')
-const salesProducts = require('./salesProducts/salesProducts')
-const bodegas = require('./bodegas/bodegas')
-
-const discounts = require('./discounts/discounts')
-
-const external_sales = require('./external_sales/external_sales')
-const reports = require('./reports/reports')
-const dashboard = require('./dashboard/dashboard')
-const returns = require('./returns/returns')
-const inventory = require('./inventory/inventory')
-const security = require('./security/security')
-const { response } = require('express')
-
-
-
-security.getJWTServiceLocalUse();
-
-
-
-app.use(cors())
-app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-)
-
-
-
-
-
-
 
 app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' })
@@ -85,10 +67,12 @@ app.delete('/returns/delete/:invoice', returns.deleteReturnedInvoice)
 
 //    consulta bodega inventario
 app.get("/inventory/:id_bodega", inventory.getProducts);
+app.get("/inventory/:id_bodega/products", inventory.getAllProducts)
+app.get("/inventory/:id_bodega/bodega", inventory.getAllBodegas)
+app.get("/inventory/:id_bodega/products/:id", inventory.getProductById)
 
 //    obtener JWT de seguridad 
 app.get("/security", security.getJWTService);
-
 
 //   discounts
 app.get('/discounts/id_bodega/:id_bodega', discounts.getDiscounts)
@@ -97,7 +81,7 @@ app.post('/discounts', discounts.createDiscounts)
 app.delete('/discounts/:id', discounts.deleteDiscounts)
 app.put('/discounts/:id', discounts.updateDiscounts)
 app.get('/discounts/id_bodega/:id_bodega/sku/:sku', discounts.getDiscountsSKU)
-app.get('/discounts/id_bodega/:id_bodega/sku/:sku', discounts.getDiscountsByActiveProduct)
+app.get('/discounts/id_bodega/:id_bodega/sku/:sku/active', discounts.getDiscountsByActiveProduct)
 
 // // sales
 app.get('/sales', sales.getSales)
@@ -178,7 +162,6 @@ app.use(function (req, res, next) {
       //console.log("acceso concedido");
       next();
     }
-
   } catch (error) {
     respuesta = {
       error: true,
@@ -189,13 +172,12 @@ app.use(function (req, res, next) {
   }
 });
 
-
 app.post('/pos/:pos_id/external-sales', external_sales.create_external_sales)
 app.get('/pos/:pos_id/external-sales/:external_sale_id', external_sales.get_external_sales)
+app.get('/pos/:pos_id/external-sales/:external_sale_id/invoice', external_sales.get_external_sales_invoice)
 app.get('/sales/customer/:id', sales.getSalesByCustomerId)
 app.get('/sales/:id', sales.getSalesById)
 // verificar https://polls.apiblueprint.org/v1/pos/sales/sale_id/invoice
-app.get('/pos/:pos_id/external-sales/:external_sale_id/invoice', external_sales.get_external_sales_invoice)
 
 
 app.use(function (req, res, next) {
@@ -214,5 +196,3 @@ app.listen(PORT, () => {
 process.on('uncaughtException', function (err) {
   console.log('Caught exception: ' + err);
 });
-
-
