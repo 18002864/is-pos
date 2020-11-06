@@ -60,7 +60,7 @@ const postReturn = async (request, response) => {
 			return;
 		}
 
-		var newAmount = parseInt(oldAmount.rows[0].quantity) - amount;
+		var newAmount = parseInt(oldAmount.rows[0].quantity) - parseInt(amount);
 
 		if (newAmount < 0) {
 			throw "La factura no contiene la cantidad de productos devueltos";
@@ -95,7 +95,7 @@ const postReturn = async (request, response) => {
 			url: bodegas.base_url + 'bodega/' + bodegas.id_bodega + '/purhcase',
 			data: {
 				sku: sku,
-				quantity: amount
+				quantity: parseInt(amount) 
 			}
 		});	
 
@@ -109,7 +109,7 @@ const postReturn = async (request, response) => {
 			if (invoiceProducts.rows[i].sku == sku) {
 				invoiceProducts.rows[i].quantity = newAmount;
 			}
-			total_sale += invoiceProducts.rows[i].quantity * invoiceProducts.rows[i].quantity*(1-invoiceProducts.rows[i].discount_percentage/100);
+			total_sale += invoiceProducts.rows[i].quantity * invoiceProducts.rows[i].unit_price*(1-(invoiceProducts.rows[i].discount_percentage/100));
 			total_discount += total_sale * invoiceProducts.rows[i].discount_percentage/100;
 		}
 

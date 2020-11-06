@@ -83,7 +83,7 @@ function generateInvoiceTable(doc, invoice) {
       item.quantity,
       item.product_code,
       formatCurrency(item.unit_price),
-      '%'+item.discount_percentage,
+      item.discount_percentage+'%',
       formatCurrency(item.total)
     );
 
@@ -165,7 +165,9 @@ function generateHr(doc, y) {
 }
 
 function formatCurrency(cents) {
-  return "Q" + (cents).toFixed(2);
+  return "Q" + (cents).toFixed(2)
+  .toString()
+  .replace(/\B(?=(\d{3})+(?!\d))/g, ',');;
 }
 
 function formatDate(date) {
