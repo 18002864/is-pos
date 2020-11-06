@@ -12,7 +12,6 @@ const pool = new Pool({
 
 const getJWTService = async (request, response) => {
 	try {
-
 		let jwt = await axios({
 			method: 'post',
 			url: 'https://auth.zer0th.com/api/node/user/auth',
@@ -27,6 +26,26 @@ const getJWTService = async (request, response) => {
 	}
 }
 
+
+const getJWTServiceLocalUse = async () => {
+	try {
+		let jwt = await axios({
+			method: 'post',
+			url: 'https://auth.zer0th.com/api/node/user/auth',
+			data: {
+				"username": "serviceaccount",
+				"password": "P@ssw0rdS3c4r3"
+			}
+		});
+		axios.defaults.headers.common['Authorization'] = jwt.data.data.token;
+		console.log("Se ingreso JWT de cuenta de servicio al header.");
+		return jwt.data;
+	} catch (error) {
+		console.log(error);
+	}
+}
+
 module.exports = {
-	getJWTService
+	getJWTService,
+	getJWTServiceLocalUse
 }

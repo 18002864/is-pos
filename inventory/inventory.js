@@ -18,6 +18,8 @@ const getProducts = async (request, response) => {
 			
 		let bodegas = resultbodegas.rows[0];
 		let endpoint = "bodega/";
+
+		/*
 		let jwt = await axios({
 			method: 'post',
 			url: 'https://auth.zer0th.com/api/node/user/auth',
@@ -26,11 +28,12 @@ const getProducts = async (request, response) => {
 				"password": "P@ssw0rdS3c4r3"
 			}
 		});
-		
+		*/
 		var infoProductos = await axios.get(bodegas.base_url+endpoint+id_bodega,{
-			headers: {
+			/*headers: {
 				"Authorization":jwt.data.data.token
 			}
+			*/
 		});
 		if (infoProductos.status == 200) {
 			response.status(200).json(infoProductos.data);

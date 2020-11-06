@@ -9,6 +9,8 @@ const { Pool } = require('pg')
 const PORT = process.env.PORT || 3000;
 
 
+
+
 const sales = require('./sales/sales')
 const salesProducts = require('./salesProducts/salesProducts')
 const bodegas = require('./bodegas/bodegas')
@@ -22,6 +24,12 @@ const returns = require('./returns/returns')
 const inventory = require('./inventory/inventory')
 const security = require('./security/security')
 const { response } = require('express')
+
+
+
+security.getJWTServiceLocalUse();
+
+
 
 app.use(cors())
 app.use(bodyParser.json())
