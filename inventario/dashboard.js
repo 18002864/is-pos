@@ -9,8 +9,24 @@ const pool = new Pool({
 	port: 5432,
 })
 
-const dashboardData = async (request, response) => {
+const getInventory = async (request, response) => {
 	try {
+
+		let resultbodegas = await pool.query(`select *
+        from bodegas
+            where id_bodega = $1`,[id_bodega]);
+		let bodegas = resultbodegas.rows[0];
+
+		let endpoint = "/bodega/";
+
+		var infoBodega = await axios.get(bodegas.base_url+endpoint+id_bodega);
+		if (stock.status == 200) {
+			for (var i = 0; i < stock.data.products.length; i++) {
+				money_in_stock += parseFloat(stock.data.products[i].price) * parseInt(stock.data.products[i].quantity);
+			}
+		}
+
+		
 
 		var daily_sales = await pool.query(`
 		SELECT created_at, EXTRACT(DAY FROM created_at), SUM(total_sale) FROM sales
@@ -60,5 +76,5 @@ const dashboardData = async (request, response) => {
 
 
 module.exports = {
-	dashboardData
+	getInventory
 }

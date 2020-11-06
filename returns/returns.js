@@ -109,9 +109,8 @@ const postReturn = async (request, response) => {
 			if (invoiceProducts.rows[i].sku == sku) {
 				invoiceProducts.rows[i].quantity = newAmount;
 			}
-
-			total_sale = invoiceProducts.rows[i].quantity * invoiceProducts.rows[i].quantity;
-			total_discount = total_sale * invoiceProducts.rows[i].discount_percentage;
+			total_sale += invoiceProducts.rows[i].quantity * invoiceProducts.rows[i].quantity*(1-invoiceProducts.rows[i].discount_percentage/100);
+			total_discount += total_sale * invoiceProducts.rows[i].discount_percentage/100;
 		}
 
 		//filter if quantity == 0

@@ -19,6 +19,8 @@ const external_sales = require('./external_sales/external_sales')
 const reports = require('./reports/reports')
 const dashboard = require('./dashboard/dashboard')
 const returns = require('./returns/returns')
+const inventory = require('./inventory/inventory')
+const security = require('./security/security')
 const { response } = require('express')
 
 app.use(cors())
@@ -44,6 +46,12 @@ app.get('/dashboard',dashboard.dashboardData)
 app.get('/returns/invoice/:invoice',returns.getInvoiceProducts)
 app.post('/returns/update',returns.postReturn)
 app.delete('/returns/delete/:invoice',returns.deleteReturnedInvoice)
+
+//    consulta bodega inventario
+app.get("/inventory/:id_bodega",inventory.getProducts);
+
+//    obtener JWT de seguridad 
+app.get("/security",security.getJWTService);
 
 
 //   discounts
