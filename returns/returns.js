@@ -1,5 +1,6 @@
 const { Pool, Client } = require('pg')
 const axios = require('axios')
+const { sendInvoiceInternal } = require('../invoicePdf/sendInvoiceInternal');
 
 const pool = new Pool({
 	user: 'postgres',
@@ -40,14 +41,19 @@ const getInvoiceProducts = async (request, response) => {
 
 const postReturn = async (request, response) => {
 	try {
-		const { sku, amount, invoice } = request.body
-
+		const { sku, amount, invoice, id_bodega } = request.body
+		//console.log("Bodega - " + id_bodega);
 		if (amount <= 0) {
 			throw "No se pueden devolver una cantidad negativa";
 		}
 		var oldAmount = await pool.query(`
 		SELECT quantity FROM sales_products
 		WHERE sku = $1 AND id_sale = $2`, [sku, parseInt(invoice)]);
+		
+		let resultbodegas = await pool.query(`select *
+        from bodegas
+            where id_bodega = $1`,[id_bodega]);
+		let bodegas = resultbodegas.rows[0];
 
 		if (oldAmount.rows.length <= 0) {
 			response.status(200).json({ "status": "la factura no existe" });
@@ -57,13 +63,13 @@ const postReturn = async (request, response) => {
 		var newAmount = parseInt(oldAmount.rows[0].quantity) - amount;
 
 		if (newAmount < 0) {
-			throw "La factura no contiene la cantidad de productos devuentos";
+			throw "La factura no contiene la cantidad de productos devueltos";
 		}
 		//create return registry
 		var id = await pool.query(`
 		INSERT INTO sales_returns
 		(id_bodega,id_sale,sku,quantity,created_at,created_by)
-		values($1,$2,$3,$4,Now() at time zone 'America/Guatemala',$5) RETURNING id_return`, [7, invoice, sku, amount, "POS"]);
+		values($1,$2,$3,$4,Now() at time zone 'America/Guatemala',$5) RETURNING id_return`, [id_bodega, invoice, sku, amount, "POS"]);
 
 		//get all sales info
 		var invoiceProducts = await pool.query(`
@@ -82,8 +88,16 @@ const postReturn = async (request, response) => {
 		var b = await pool.query(`
 		DELETE FROM sales WHERE id_sale = $1`, [invoice]);
 		
+		console.log(bodegas);
 
-
+		await axios({
+			method: 'post',
+			url: bodegas.base_url + 'bodega/' + bodegas.id_bodega + '/purhcase',
+			data: {
+				sku: sku,
+				quantity: amount
+			}
+		});	
 
 		const nit = customerId.rows[0].customer_id;
 
@@ -112,7 +126,7 @@ const postReturn = async (request, response) => {
 		const invoice_id = await pool.query(`
 		INSERT INTO sales (id_bodega,massive_sale_id, customer_id, total_sale, total_discount, created_at, created_by)
 		values($6,$1,$2,$3,$4,Now() at time zone 'America/Guatemala',$5) RETURNING id_sale`, [Math.floor(Math.random() * 100000)
-			, nit, total_sale, total_discount,"POS",7]);
+			, nit, total_sale, total_discount,"POS",id_bodega]);
 
 		//create the products registers
 		for (var i = 0; i < invoiceProducts.rows.length; i++) {
@@ -123,7 +137,7 @@ const postReturn = async (request, response) => {
 			await pool.query(`
 			INSERT INTO sales_products (id_sale, id_bodega, sku, quantity, unit_price, discount_percentage, total_product, total_discount,
 				total, created_at, created_by)
-			values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now() at time zone 'America/Guatemala',$10)`, [invoice_id.rows[0].id_sale, 7,
+			values($1,$2,$3,$4,$5,$6,$7,$8,$9,Now() at time zone 'America/Guatemala',$10)`, [invoice_id.rows[0].id_sale, id_bodega,
 				invoiceProducts.rows[i].sku, quantity, price,
 				discount, quantity * price, totalDisc,quantity * price-totalDisc, "POS"]);
 		}
@@ -133,6 +147,7 @@ const postReturn = async (request, response) => {
 		UPDATE sales_products 
 		SET total_discount = unit_price*discount_percentage/100.0*quantity`);
 		*/
+		send_internal_sales_invoice(invoice_id.rows[0].id_sale);
 		response.status(200).json(invoice_id.rows);
 
 	} catch (error) {
@@ -152,6 +167,45 @@ const deleteReturnedInvoice = async (request, response) => {
 	} catch (error) {
 		console.error(error);
 	}
+}
+
+function send_internal_sales_invoice(id){
+    pool.query(`
+      select massive_sale_id, id_sale, customer_id, invoice_id,
+          total_sale, total_discount
+              from sales
+              where id_sale = $1`, [id],
+        (error, results) => {
+            if (error) {
+                console.log('error', error)
+                throw error
+            }
+            let body = results.rows
+            pool.query(`
+          select sku product_code, quantity, unit_price, discount_percentage,
+              total_product, total_discount, total
+              from sales_products
+                  where id_sale = $1 ;`, [id],
+                (error2, results2) => {
+                    if (error2) {
+                        console.log('error', error2)
+                        throw error2
+                    }
+                    body[0].products = results2.rows
+                    axios({
+                        method: 'get',
+                        url: 'https://ids-crm.herokuapp.com/api/costumer/read_single.php?nit=' + body[0].customer_id,
+                    }).then(res => {
+                        let info = res.data;
+                        if (info.nit != null) {
+                            body[0].nombres = info.cname;
+                            body[0].direccion = info.caddress;
+                            body[0].email = info.cemail;
+                            sendInvoiceInternal(body[0]);
+                        }
+                    })
+                })
+        })
 }
 
 module.exports = {
